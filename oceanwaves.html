@@ -1,0 +1,268 @@
+<html>
+<head>
+  <title>CSC 471 Final Project</title>
+
+  <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,700,400italic,700italic" rel="stylesheet" type="text/css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: white;
+      color: #333333;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+      font-family: "Source Sans Pro", Helvetica;
+    }
+
+    img {
+      display: block;
+    }
+
+    em {
+      font-size: 12px;
+    }
+
+    #signature {
+      margin-left: 30px;
+      font-style: oblique;
+    }
+
+    a:link,
+    a:visited {
+      color: #165788;
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus,
+    a:active {
+      text-decoration: underline;
+    }
+
+    .wrapper {
+      width: 660px;
+      margin: auto;
+    }
+
+    .container {
+      width: 660px;
+      margin: auto;
+    }
+
+    #content {
+      width: 650px;
+      margin: 70px auto 0px auto;
+    }
+
+    #content article {
+      margin-bottom: 150px;
+    }
+
+    #content h1,
+    #content h2 {
+      color: black;
+      margin-bottom: 30px;
+      font-weight: 200;
+      font-size: 48px;
+    }
+
+    #content h3 {
+      color: black;
+      border-bottom: 1px solid black;
+      text-transform: uppercase;
+      margin: 30px 0px 30px 0px;
+      font-size: 28px;
+      font-weight: 200;
+    }
+
+    #content p {
+      width: 100%;
+      line-height: 150%;
+      margin-bottom: 20px;
+    }
+
+    #content p:first-child {
+      font-size: 18px;
+      font-style: italic;
+      letter-spacing: 2px;
+    }
+
+    #content p:first-child:first-line {
+        font-weight: bold;
+    }
+
+    #content ul {
+        padding-left:25px
+    }
+
+    pre {
+      font-size: 16px;
+      padding: 1px;
+      border-radius: 10px;
+      background: #ddd;
+    }
+  </style>
+</head>
+
+<body><div class="wrapper"><section id="content">
+
+<h1>Low-Poly Ocean Waves</h1>
+
+<h4>Jeremiah Lee - CSC 471 - Fall 2022 - Christian Eckhardt</h4>
+
+<article> <!-- This adds padding at the top and bottom -->
+
+
+
+
+<h3>Ocean Waves</h3>
+
+<center>
+  <a>
+    <video width="665" height="618" autoplay muted controls loop>
+      <source src="multi-wave.mp4" type="video/mp4"
+    </video>
+  </a>
+</center>
+<br />
+<p>My quarter project consisted of creating a low-aesthetic ocean. 
+To do this I created a mesh which I laid a texture on top of, and used a vertex shader to create the effect of rolling waves.
+</p>
+
+<p>The world so far is only one mesh with a size that is controllable in the code. 
+  The waves are predetermined and set in the vertex shader, but can be altered by changing variables such as wavelength, wavespeed, amplitude, etc. 
+</p>
+
+<p>To move aroudn while running the program, use the following controls:
+  <ul>
+    <li>W: Move camera forward</li>
+    <li>A: Rotate camera left</li>
+    <li>S: Move camera backward</li>
+    <li>D: Rotate camera right</li>
+    <li>Space: Pan camera up</li>
+    <li>Shift: Pan camera down</li>
+    <li>Tab: Speed up camera movement</li>
+  </ul>
+</p>
+
+
+<h3>Prototypes</h3>
+<p>Trying to figure out how to animate a mesh with waves created several iterations of the program</p>
+<h4>Unconnected Strips</h4>
+<p>The first Idea that I had was to do all of the computation on the CPU, specifically in the <code>render()</code>> function by getting the data for all the vertices in the
+  mesh with <code>glGetBufferSubData()</code>, edit the heights of the vertices, and then update the mesh with <code>glBufferSubData()</code>. This had the effect below.
+</p>
+
+<!-- A Centered image -->
+<center>
+  <a>
+    <video width="330" height="310" autoplay muted controls loop>
+      <source src="unconnected.mp4" type="video/mp4"
+    </video>
+  </a>
+</center>
+<br>
+<h4>Connected Strips</h4>
+<p>As you can see, each individaul square in the wave moves independent of each other. In this example I was passing in a sine wave, so each horizontal
+  row moved with each other.
+</p>
+<p>To solve this issue, I decided to let one out of the 4 vertices for each rectangle be an 'anchor', which I would move up and down with functions.
+  Then I would anchor the other 3 points of the rectangle to anchors of the surrounding rectangles, so that I could connect all of the strips seamlessly. This led to the result below.
+</p>
+
+<center>
+  <a>
+    <video width="330" height="310" autoplay muted controls loop>
+      <source src="conneted.mp4" type="video/mp4"
+    </video>
+  </a>
+</center>
+<br>
+<h3>Moving to the Vertex Shader</h3>
+<h4>Gerstner Waves</h4>
+<p>I could now animate the mesh with combinations of sines and cosines, but a regular wave like that doesn't look very realistic as an ocean.
+  In order to accomplish this, I used what is called a Gerstner Wave. With a regular sine wave each point moves up and down in a straight line, but 
+  with a Gerstner wave the points also move left and right in a wave motion, this effect creates waves that have points clustered up close together at the peak, 
+  and spread farther apart at the trough. The video below demonstrates the implementation of a Gerstner wave. Note: at this point in the project I decided to move
+  away from manually altering the VBO on the CPU, and to do all the calculations in the Vertex Shader.
+</p>
+<center>
+  <a>
+    <video width="330" height="310" autoplay muted controls loop>
+      <source src="gerstner.mp4" type="video/mp4"
+    </video>
+  </a>
+</center>
+<br>
+<h4>Making it More Realistic</h4>
+<p>This looks good, but ocean waves aren't in just one direction, they are more chaotic than this. To get a more realistic wave-like motion, I layered multiple
+  Gerstner waves on top of each other. I did this by creating a function in my Vertex Shader called <code>gerstnerWave()</code>. What this function does is it takes
+  in a <code>vec4</code> which contains wave direction, amplitude, and wavespeed; and using wave physics formulas and the gerstner wave formula, returns the proper
+  x, y, and z values for every point in the mesh. 
+</p>
+<p>By calling <code>gerstnerWave()</code> with multiple different vec4's and adding their results together, we can get results with more than one wave like this:</p>
+<center>
+  <a>
+    <video width="330" height="310" autoplay muted controls loop>
+      <source src="2wave.mp4" type="video/mp4"
+    </video>
+  </a>
+</center>
+<br>
+
+<h3>Code Implementation</h3>
+<h4>So, how does this work?</h4>
+<p>The format for the vec4 to determine a wave is as follows: direction [x, z], amplitude, wavelength</p>
+<p>For example, the waves that made up the animation at the top of this page were as follows:</p>
+<pre>
+  <code class="language-clike">
+    vec4 wave1 = vec4(1., 1., 0.25, 80);
+    vec4 wave2 = vec4(1., 0.5, 0.25, 34);
+    vec4 wave3 = vec4(1, 1.3, 0.25, 15);
+  </code>
+</pre>
+<p>In this example, the first wave has a direction of [1, 1], and amplitude of 0.25, and a wavelength of 80</p>
+<h4>gerstnerWave()</h4>
+<p>As stated earlier, the <code>gerstnerWave()</code>function takes in a vec4 wave input and outputs a vec3 position.</p>
+<pre>
+  <code class="language-clike">
+    vec3 gerstnerWave(vec4 wave){
+      float amp = wave.z;
+      float wavLen = wave.w;
+      float k = 2 * 3.14159265358979323846264338327950288 / wavLen;
+      float c = sqrt(9.8 / k);
+      vec2 d = normalize(wave.xy);
+      float f = k * (dot(d, vertPos.xz) - c * time);
+      float a = amp / k;
+  
+      vec3 posRet;
+      posRet.x = d.x * (a * cos(f));
+      posRet.y = a * sin(f);
+      posRet.z = d.y * (a * cos(f));
+      return posRet;
+  }
+  </code>
+</pre>
+
+<h3>End Product</h3>
+<p>I was really happy that I got a decently realistic wave animation with my mesh, but there were a few things that I had planned to do that 
+  didn't make it in. Things like bloom for the mesh to give it a neon-glowing effect, user control for to change waves dynamically, and an infinitely walkable ocean
+  are all things things that I wasn't able to get to but are feasibly possible with a little more work.
+</p>
+
+<h3>Download SourceCode</h3>
+<ul>
+  <li><a href="ocean_waves.zip" download>ocean_waves.zip</a></li>
+</ul>
+
+<br><br>
+<a href="https://www.linkedin.com/in/jeremiah-k-lee/">My LinkedIn</a>
+<br>
+<a href="https://github.com/jkailee">My GitHub</a>
+
+
+</article></section></div></body></html>
